@@ -1,0 +1,154 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+var app = {
+
+    // database object
+    db : {},
+    // a count of the words in the db...
+    wordCount : 0,
+    correctDef : '',
+    correctID : 0,
+    definitionArray : [],
+    // Application Constructor
+    initialize: function() {
+        this.bindEvents();
+    },
+    // Bind Event Listeners
+    //
+    // Bind any events that are required on startup. Common events are:
+    // 'load', 'deviceready', 'offline', and 'online'.
+    bindEvents: function() {
+        document.addEventListener('deviceready', this.onDeviceReady, false);
+    },
+    // deviceready Event Handler
+    //
+    // The scope of 'this' is the event. In order to call the 'receivedEvent'
+    // function, we must explicitly call 'app.receivedEvent(...);'
+    onDeviceReady: function() {
+        //app.receivedEvent('deviceready');
+        console.log('deviceready is here');
+        app.dbTransact();
+    },
+    // Update DOM on a Received Event
+    receivedEvent: function(id) {
+        // var parentElement = document.getElementById(id);
+        // var listeningElement = parentElement.querySelector('.listening');
+        // var receivedElement = parentElement.querySelector('.received');
+
+        // listeningElement.setAttribute('style', 'display:none;');
+        // receivedElement.setAttribute('style', 'display:block;');
+
+        // console.log('Received Event: ' + id);
+    },
+
+    // TODO: Move this database stuff to a separate file.
+    dbTransact: function(){
+        function populateDB(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS WORDS');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS WORDS (id unique, name, definition)');
+            tx.executeSql('INSERT INTO WORDS (id, name, definition) VALUES (1, "assuage", "To make (an unpleasant) feeling less intense")');
+            tx.executeSql('INSERT INTO WORDS (id, name, definition) VALUES (2, "profligate", "Utterly and shamelessly immoral or dissipated recklessly prodigal or extravagant.")');
+            tx.executeSql('INSERT INTO WORDS (id, name, definition) VALUES (3, "succinct", "Expressed with few words, concise.")');
+            tx.executeSql('INSERT INTO WORDS (id, name, definition) VALUES (4, "carapace", "A bony or chitinous shield, test, or shell covering some or all of the dorsal part of an animal, as of a turtle.")');
+            tx.executeSql('INSERT INTO WORDS (id, name, definition) VALUES (5, "efficacious", "Capable of having the desired result or effect. Effective as a means, measure, remedy, etc.")');
+        }
+
+        function errorCB(err) {
+            alert("Error processing SQL: "+err.code);
+        }
+
+        function queryDB(tx){
+            tx.executeSql('SELECT * FROM WORDS', [], querySuccess, errorCB);
+        }
+        function querySuccess(tx, results){
+            console.log('returned rows = ' + results.rows.length);
+            app.wordCount = results.rows.length;
+            for (var i = 0; i < results.rows.length; i++){
+                console.log('Word: ' + results.rows.item(i).name + ' def ' + results.rows.item(i).definition);
+            }
+            // for (var i = 0; i < results.rows.length; i++) {
+            //     console.log('Row: ' + i + ' ID ' + results.rows.item(i).id + ' data ' + results.rows.item(i).definition);
+            // };
+        }
+
+        function successCB() {
+            alert("success!");// !!!
+            console.log('hit');
+            app.db = window.openDatabase("Database", "1.0", "Cordova Demo", 200000);
+            app.db.transaction(queryDB, errorCB);
+            app.db.transaction(app.loadWord, errorCB);
+        }
+
+        app.db = window.openDatabase("Database", "1.0", "Cordova Demo", 200000);
+        app.db.transaction(populateDB, errorCB, successCB);
+    },
+
+    loadWord : function(tx){
+        var rand = Math.floor((Math.random() * app.wordCount) + 1);
+        tx.executeSql('SELECT * FROM WORDS WHERE id = ' + rand + ' LIMIT 1', [], app.loadDOM, app.signalError);
+    },
+
+    getDefs : function(tx){
+        console.log(app.correctDef);
+        tx.executeSql('SELECT * FROM WORDS WHERE id <> ' + app.correctID + ' LIMIT 3', [], app.loadDefs, app.signalError);
+    },
+    loadDefs : function(tx, results){
+        console.log('defs');
+        for (var i = 0; i < results.rows.length; i++){
+            console.log(results.rows.item(i).definition);
+            app.definitionArray.push(results.rows.item(i).definition);
+        }
+        console.log(app.definitionArray);
+        app.definitionArray.shuffle();
+        console.log(app.definitionArray);
+        var list = document.getElementById('definitionTest');
+        for (var i = app.definitionArray.length - 1; i >= 0; i--) {
+            var l = document.createElement('li');
+            list.appendChild(l);
+            l.innerHTML = app.definitionArray[i];
+        };
+    },
+    loadDOM : function(tx, results){
+        var nameSelector = document.querySelector('.word-name');
+        nameSelector.innerHTML = results.rows.item(0).name;
+        app.correctDef = results.rows.item(0).definition;
+        app.definitionArray.push(app.correctDef);
+        app.correctID = results.rows.item(0).id;
+        app.db.transaction(app.getDefs);
+    },
+    signalError : function(){
+        console.log('there was a problem');
+    }
+};
+/*
+ * Add a shuffle function to Array object prototype
+ * Usage : 
+ *  var tmpArray = ["a", "b", "c", "d", "e"];
+ *  tmpArray.shuffle();
+ */
+Array.prototype.shuffle = function (){
+    var i = this.length, j, temp;
+    if ( i == 0 ) return;
+    while ( --i ) {
+        j = Math.floor( Math.random() * ( i + 1 ) );
+        temp = this[i];
+        this[i] = this[j];
+        this[j] = temp;
+    }
+};
