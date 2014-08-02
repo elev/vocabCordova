@@ -57,7 +57,7 @@ var app = {
         // console.log('Received Event: ' + id);
     },
 
-    // TODO: Move this database stuff to a separate file.
+    // Initial DB and Tests, This needs to be refactored...
     dbTransact: function(){
         function populateDB(tx) {
             tx.executeSql('DROP TABLE IF EXISTS WORDS');
@@ -98,36 +98,40 @@ var app = {
         app.db = window.openDatabase("Database", "1.0", "Cordova Demo", 200000);
         app.db.transaction(populateDB, errorCB, successCB);
     },
-
+    // get the answer
     loadWord : function(tx){
         var rand = Math.floor((Math.random() * app.wordCount) + 1);
         tx.executeSql('SELECT * FROM WORDS WHERE id = ' + rand + ' LIMIT 1', [], app.loadDOM, app.signalError);
     },
-
+    // get definitions that are not the answer
     getDefs : function(tx){
         console.log(app.correctDef);
         tx.executeSql('SELECT * FROM WORDS WHERE id <> ' + app.correctID + ' LIMIT 3', [], app.loadDefs, app.signalError);
     },
+    // load definitions,
+    // assign correct class
+    // add click correct event listener
     loadDefs : function(tx, results){
         console.log('defs');
         for (var i = 0; i < results.rows.length; i++){
             console.log(results.rows.item(i).definition);
             app.definitionArray.push(results.rows.item(i).definition);
         }
-        console.log(app.definitionArray);
         app.definitionArray.shuffle();
-        console.log(app.definitionArray);
         var list = document.getElementById('definitionTest');
         for (var i = app.definitionArray.length - 1; i >= 0; i--) {
             var l = document.createElement('li');
             list.appendChild(l);
             l.innerHTML = app.definitionArray[i];
+            // if this is the correct word, let it know...
             if (app.definitionArray[i] == app.correctDef){
                 console.log('correcto');
                 l.className += 'correct';
             }
+            l.addEventListener('click',function(){ app.clickCorrect(this) });
         };
     },
+    // create the new word, get the other defintions
     loadDOM : function(tx, results){
         var nameSelector = document.querySelector('.word-name');
         nameSelector.innerHTML = results.rows.item(0).name;
@@ -138,8 +142,17 @@ var app = {
     },
     signalError : function(){
         console.log('there was a problem');
+    },
+    // check if it is the correct
+    clickCorrect : function(elem){
+        console.log(elem);
+        console.log('hit');
+        console.log(elem.classList.contains('correct'));
     }
 };
+
+// Helpers
+
 /*
  * Add a shuffle function to Array object prototype
  * Usage : 
