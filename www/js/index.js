@@ -122,6 +122,10 @@ var app = {
             var l = document.createElement('li');
             list.appendChild(l);
             l.innerHTML = app.definitionArray[i];
+            if (app.definitionArray[i] == app.correctDef){
+                console.log('correcto');
+                l.className += 'correct';
+            }
         };
     },
     loadDOM : function(tx, results){
