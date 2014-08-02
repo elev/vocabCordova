@@ -145,9 +145,14 @@ var app = {
     },
     // check if it is the correct
     clickCorrect : function(elem){
-        console.log(elem);
-        console.log('hit');
-        console.log(elem.classList.contains('correct'));
+        // slowly fade background
+        // if it's correct reload the dom,
+        // if it isn't bring them back
+        if (elem.classList.contains('correct')){
+            alert('You are correct.');
+        } else {
+            alert('Incorrect, please try again.');
+        }
     }
 };
 
