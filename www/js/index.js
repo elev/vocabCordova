@@ -101,7 +101,7 @@ var app = {
     // get the answer
     loadWord : function(tx){
         var rand = Math.floor((Math.random() * app.wordCount) + 1);
-        tx.executeSql('SELECT * FROM WORDS WHERE id = ' + rand + ' LIMIT 1', [], app.loadDOM, app.signalError);
+        tx.executeSql('SELECT * FROM WORDS WHERE id = ' + rand + ' AND id <> ' + app.correctID + ' LIMIT 1', [], app.loadDOM, app.signalError);
     },
     // get definitions that are not the answer
     getDefs : function(tx){
@@ -182,17 +182,21 @@ var app = {
     removeNode : function(x){
         fadeOut();
         if (x === true){
+            // empty out the word
             var nameSelector = document.querySelector('.word-name');
             nameSelector.innerHTML = '';
 
+            // empty out the list
             var list = document.getElementById('definitionTest');
             list.innerHTML = '';
 
-                        
+            // reset all the things
             app.wordCount = 0;
             app.correctDef = '';
             app.correctID = 0;
             app.definitionArray = [];
+
+            // reload all the things...
             app.db.transaction(app.loadWord, app.signalError);
         }
     }
