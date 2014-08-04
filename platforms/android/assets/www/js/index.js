@@ -148,12 +148,25 @@ var app = {
         // slowly fade background
         // if it's correct reload the dom,
         // if it isn't bring them back
+
+        // create a div id of overlay....
+        overlay = document.createElement("div");
+        overlay.setAttribute("id", "overlay");
+        document.body.appendChild(overlay);
+
+        // fade it in
+        fadeIn(overlay, 0.7);
+
+        
+
         if (elem.classList.contains('correct')){
             alert('You are correct.');
         } else {
             alert('Incorrect, please try again.');
         }
     }
+
+
 };
 
 // Helpers
@@ -173,4 +186,17 @@ Array.prototype.shuffle = function (){
         this[i] = this[j];
         this[j] = temp;
     }
+};
+
+
+/* bring in an overlay */
+function fadeIn(element, finalOp) {
+    var op = 0;  // initial opacity
+    var timer = setInterval(function () {
+        if (op >= finalOp){
+            clearInterval(timer);
+        }
+        element.style.opacity = op;
+        op += 0.05;
+    }, 20);
 };
