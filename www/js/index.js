@@ -182,6 +182,17 @@ var app = {
     removeNode : function(x){
         fadeOut();
         if (x === true){
+            var nameSelector = document.querySelector('.word-name');
+            nameSelector.innerHTML = '';
+
+            var list = document.getElementById('definitionTest');
+            list.innerHTML = '';
+
+                        
+            app.wordCount = 0;
+            app.correctDef = '';
+            app.correctID = 0;
+            app.definitionArray = [];
             app.db.transaction(app.loadWord, app.signalError);
         }
     }
