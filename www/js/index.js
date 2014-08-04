@@ -150,9 +150,11 @@ var app = {
         // if it isn't bring them back
 
         var message = '';
+        var answer = false;
         // create the message
         if (elem.classList.contains('correct')){
             message = 'You are correct.';
+            answer = true;
         } else {
             message = 'Incorrect, please try again.';
         }
@@ -172,9 +174,16 @@ var app = {
         document.body.appendChild(overText);
         fadeIn(overText, 1);
 
+        // click event
+        overlay.addEventListener('click', function(){app.removeNode(answer)});
 
 
-
+    },
+    removeNode : function(x){
+        fadeOut();
+        if (x === true){
+            app.db.transaction(app.loadWord, app.signalError);
+        }
     }
 
 
@@ -211,3 +220,21 @@ function fadeIn(element, finalOp) {
         op += 0.05;
     }, 20);
 };
+
+/* fade out the overlay */
+// fade out
+function fadeOut() {
+    overlay = document.getElementById('overlay');
+    overText = document.getElementById('overText');
+    var op = .7;  // initial opacity
+    var timer = setInterval(function () {
+        if (op <= 0.1){
+            clearInterval(timer);
+            document.body.removeChild(overlay);
+            document.body.removeChild(overText);
+        }
+        op -=  0.05;
+        overlay.style.opacity = op;
+        overText.style.opacity = op;
+    }, 20);
+}
