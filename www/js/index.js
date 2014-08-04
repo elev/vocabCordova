@@ -149,6 +149,14 @@ var app = {
         // if it's correct reload the dom,
         // if it isn't bring them back
 
+        var message = '';
+        // create the message
+        if (elem.classList.contains('correct')){
+            message = 'You are correct.';
+        } else {
+            message = 'Incorrect, please try again.';
+        }
+
         // create a div id of overlay....
         overlay = document.createElement("div");
         overlay.setAttribute("id", "overlay");
@@ -157,13 +165,16 @@ var app = {
         // fade it in
         fadeIn(overlay, 0.7);
 
-        
+        // fade in the text
+        overText = document.createElement("div");
+        overText.setAttribute("id", "overText");
+        overText.innerHTML= message;
+        document.body.appendChild(overText);
+        fadeIn(overText, 1);
 
-        if (elem.classList.contains('correct')){
-            alert('You are correct.');
-        } else {
-            alert('Incorrect, please try again.');
-        }
+
+
+
     }
 
 
