@@ -77,7 +77,6 @@ var app = {
             tx.executeSql('SELECT * FROM WORDS', [], querySuccess, errorCB);
         }
         function querySuccess(tx, results){
-            console.log('returned rows = ' + results.rows.length);
             app.wordCount = results.rows.length;
             for (var i = 0; i < results.rows.length; i++){
                 console.log('Word: ' + results.rows.item(i).name + ' def ' + results.rows.item(i).definition);
@@ -100,8 +99,14 @@ var app = {
     },
     // get the answer
     loadWord : function(tx){
-        var rand = Math.floor((Math.random() * app.wordCount) + 1);
-        tx.executeSql('SELECT * FROM WORDS WHERE id = ' + rand + ' AND id <> ' + app.correctID + ' LIMIT 1', [], app.loadDOM, app.signalError);
+        console.log('wordcount: ' + app.wordCount);
+        var rand = Math.floor(Math.random()*(app.wordCount-1+1)+1);
+        console.log('rand' + rand);
+        //var rand = Math.floor((Math.random() * app.wordCount) + 1);
+        var sql = 'SELECT * FROM WORDS WHERE id = ' + rand + ' AND id <> ' + app.correctID + ' LIMIT 1';
+        console.log(sql);
+        console.log('this is it!!'); // !!!
+        tx.executeSql(sql, [], app.loadDOM, app.signalError);
     },
     // get definitions that are not the answer
     getDefs : function(tx){
@@ -138,6 +143,7 @@ var app = {
         app.correctDef = results.rows.item(0).definition;
         app.definitionArray.push(app.correctDef);
         app.correctID = results.rows.item(0).id;
+        console.log(app.correctID);//!!!
         app.db.transaction(app.getDefs);
     },
     signalError : function(){
@@ -191,9 +197,7 @@ var app = {
             list.innerHTML = '';
 
             // reset all the things
-            app.wordCount = 0;
             app.correctDef = '';
-            app.correctID = 0;
             app.definitionArray = [];
 
             // reload all the things...
