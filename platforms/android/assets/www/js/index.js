@@ -42,7 +42,6 @@ var app = {
     // function, we must explicitly call 'app.receivedEvent(...);'
     onDeviceReady: function() {
         //app.receivedEvent('deviceready');
-        console.log('deviceready is here');
         app.dbTransact();
     },
     // Update DOM on a Received Event
@@ -78,17 +77,12 @@ var app = {
         }
         function querySuccess(tx, results){
             app.wordCount = results.rows.length;
-            for (var i = 0; i < results.rows.length; i++){
-                console.log('Word: ' + results.rows.item(i).name + ' def ' + results.rows.item(i).definition);
-            }
             // for (var i = 0; i < results.rows.length; i++) {
             //     console.log('Row: ' + i + ' ID ' + results.rows.item(i).id + ' data ' + results.rows.item(i).definition);
             // };
         }
 
         function successCB() {
-            alert("success!");// !!!
-            console.log('hit');
             app.db = window.openDatabase("Database", "1.0", "Cordova Demo", 200000);
             app.db.transaction(queryDB, errorCB);
             app.db.transaction(app.loadWord, errorCB);
@@ -99,27 +93,29 @@ var app = {
     },
     // get the answer
     loadWord : function(tx){
-        console.log('wordcount: ' + app.wordCount);
-        var rand = Math.floor(Math.random()*(app.wordCount-1+1)+1);
-        console.log('rand' + rand);
+        function getRand(num, count){
+            var rand = Math.floor(Math.random()*(app.wordCount-1+1)+1);
+            if (rand != num){
+                return rand;
+            } else {
+                return getRand(num, count);
+            }
+        }
+        //var rand = Math.floor(Math.random()*(app.wordCount-1+1)+1);
+        var rand = getRand(app.correctID, app.wordCount);
         //var rand = Math.floor((Math.random() * app.wordCount) + 1);
         var sql = 'SELECT * FROM WORDS WHERE id = ' + rand + ' AND id <> ' + app.correctID + ' LIMIT 1';
-        console.log(sql);
-        console.log('this is it!!'); // !!!
         tx.executeSql(sql, [], app.loadDOM, app.signalError);
     },
     // get definitions that are not the answer
     getDefs : function(tx){
-        console.log(app.correctDef);
         tx.executeSql('SELECT * FROM WORDS WHERE id <> ' + app.correctID + ' LIMIT 3', [], app.loadDefs, app.signalError);
     },
     // load definitions,
     // assign correct class
     // add click correct event listener
     loadDefs : function(tx, results){
-        console.log('defs');
         for (var i = 0; i < results.rows.length; i++){
-            console.log(results.rows.item(i).definition);
             app.definitionArray.push(results.rows.item(i).definition);
         }
         app.definitionArray.shuffle();
@@ -130,7 +126,6 @@ var app = {
             l.innerHTML = app.definitionArray[i];
             // if this is the correct word, let it know...
             if (app.definitionArray[i] == app.correctDef){
-                console.log('correcto');
                 l.className += 'correct';
             }
             l.addEventListener('click',function(){ app.clickCorrect(this) });
@@ -143,11 +138,10 @@ var app = {
         app.correctDef = results.rows.item(0).definition;
         app.definitionArray.push(app.correctDef);
         app.correctID = results.rows.item(0).id;
-        console.log(app.correctID);//!!!
         app.db.transaction(app.getDefs);
     },
     signalError : function(){
-        console.log('there was a problem');
+        alert('database Error');
     },
     // check if it is the correct
     clickCorrect : function(elem){
