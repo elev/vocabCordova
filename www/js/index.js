@@ -29,6 +29,8 @@ var app = {
     initialize: function() {
         this.bindEvents();
     },
+
+
     // Bind Event Listeners
     //
     // Bind any events that are required on startup. Common events are:
@@ -36,27 +38,18 @@ var app = {
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
     },
+
+
     // deviceready Event Handler
     //
     // The scope of 'this' is the event. In order to call the 'receivedEvent'
     // function, we must explicitly call 'app.receivedEvent(...);'
     onDeviceReady: function() {
-        //app.receivedEvent('deviceready');
         app.dbTransact();
     },
-    // Update DOM on a Received Event
-    receivedEvent: function(id) {
-        // var parentElement = document.getElementById(id);
-        // var listeningElement = parentElement.querySelector('.listening');
-        // var receivedElement = parentElement.querySelector('.received');
 
-        // listeningElement.setAttribute('style', 'display:none;');
-        // receivedElement.setAttribute('style', 'display:block;');
 
-        // console.log('Received Event: ' + id);
-    },
-
-    // Initial DB and Tests, This needs to be refactored...
+    // Create the Databse.
     dbTransact: function(){
         function populateDB(tx) {
             tx.executeSql('DROP TABLE IF EXISTS WORDS');
@@ -72,15 +65,16 @@ var app = {
             alert("Error processing SQL: "+err.code);
         }
 
+        // query db to get word count
         function queryDB(tx){
             tx.executeSql('SELECT * FROM WORDS', [], querySuccess, errorCB);
         }
+        
+        // if successful query, set the apps word count...
         function querySuccess(tx, results){
             app.wordCount = results.rows.length;
-            // for (var i = 0; i < results.rows.length; i++) {
-            //     console.log('Row: ' + i + ' ID ' + results.rows.item(i).id + ' data ' + results.rows.item(i).definition);
-            // };
         }
+
 
         function successCB() {
             app.db = window.openDatabase("Database", "1.0", "Cordova Demo", 200000);
@@ -91,6 +85,8 @@ var app = {
         app.db = window.openDatabase("Database", "1.0", "Cordova Demo", 200000);
         app.db.transaction(populateDB, errorCB, successCB);
     },
+
+
     // get the answer
     loadWord : function(tx){
         function getRand(num, count){
@@ -101,12 +97,15 @@ var app = {
                 return getRand(num, count);
             }
         }
-        //var rand = Math.floor(Math.random()*(app.wordCount-1+1)+1);
         var rand = getRand(app.correctID, app.wordCount);
-        //var rand = Math.floor((Math.random() * app.wordCount) + 1);
         var sql = 'SELECT * FROM WORDS WHERE id = ' + rand + ' AND id <> ' + app.correctID + ' LIMIT 1';
         tx.executeSql(sql, [], app.loadDOM, app.signalError);
     },
+
+
+
+
+
     // get definitions that are not the answer
     getDefs : function(tx){
         tx.executeSql('SELECT * FROM WORDS WHERE id <> ' + app.correctID + ' LIMIT 3', [], app.loadDefs, app.signalError);
