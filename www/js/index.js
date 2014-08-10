@@ -54,11 +54,21 @@ var app = {
         function populateDB(tx) {
             tx.executeSql('DROP TABLE IF EXISTS WORDS');
             tx.executeSql('CREATE TABLE IF NOT EXISTS WORDS (id unique, name, definition)');
-            tx.executeSql('INSERT INTO WORDS (id, name, definition) VALUES (1, "assuage", "To make (an unpleasant) feeling less intense")');
-            tx.executeSql('INSERT INTO WORDS (id, name, definition) VALUES (2, "profligate", "Utterly and shamelessly immoral or dissipated recklessly prodigal or extravagant.")');
-            tx.executeSql('INSERT INTO WORDS (id, name, definition) VALUES (3, "succinct", "Expressed with few words, concise.")');
-            tx.executeSql('INSERT INTO WORDS (id, name, definition) VALUES (4, "carapace", "A bony or chitinous shield, test, or shell covering some or all of the dorsal part of an animal, as of a turtle.")');
-            tx.executeSql('INSERT INTO WORDS (id, name, definition) VALUES (5, "efficacious", "Capable of having the desired result or effect. Effective as a means, measure, remedy, etc.")');
+            tx.executeSql('INSERT INTO WORDS (id, name, definition) VALUES (1, "Assuage", "To make (an unpleasant) feeling less intense")');
+            tx.executeSql('INSERT INTO WORDS (id, name, definition) VALUES (2, "Profligate", "Utterly and shamelessly immoral or dissipated recklessly prodigal or extravagant.")');
+            tx.executeSql('INSERT INTO WORDS (id, name, definition) VALUES (3, "Succinct", "Expressed with few words, concise.")');
+            tx.executeSql('INSERT INTO WORDS (id, name, definition) VALUES (4, "Carapace", "A bony or chitinous shield, test, or shell covering some or all of the dorsal part of an animal, as of a turtle.")');
+            tx.executeSql('INSERT INTO WORDS (id, name, definition) VALUES (5, "Gossamer", "A fine cobweb in the bushes or floating calmly, especailly in autumn; A thread or web of substance; Light flimsy or delicate")');
+            tx.executeSql('INSERT INTO WORDS (id, name, definition) VALUES (6, "Ephemeral", "Lasting only a short time; short lived; transitory; lasting but one day.")');
+            tx.executeSql('INSERT INTO WORDS (id, name, definition) VALUES (7, "Efficacious", "Capable of having the desired result or effect. Effective as a means, measure, remedy, etc.")');
+            tx.executeSql('INSERT INTO WORDS (id, name, definition) VALUES (8, "Misnomer", "A misapplied or inappropriate name or designation; An error in naming a person or thing.")');
+            tx.executeSql('INSERT INTO WORDS (id, name, definition) VALUES (9, "Venerable", "Commanding respect because of great age or impressive dignity; Impressive or interesting because of age.")');
+            tx.executeSql('INSERT INTO WORDS (id, name, definition) VALUES (10, "Frenetic", "Frantic; Frenzied")');
+            tx.executeSql('INSERT INTO WORDS (id, name, definition) VALUES (11, "Equanimity", "Mental calmness, composure, and evenness of temper, especially in a difficult situation.")');
+            tx.executeSql('INSERT INTO WORDS (id, name, definition) VALUES (12, "Quiescent", "Being at rest, quiet, still")');
+            tx.executeSql('INSERT INTO WORDS (id, name, definition) VALUES (13, "Ostensibly", "Apparently or purportedly, but perhaps not actually.")');
+            tx.executeSql('INSERT INTO WORDS (id, name, definition) VALUES (14, "Subsume", "Include or absorb (something) in something else.")');
+            tx.executeSql('INSERT INTO WORDS (id, name, definition) VALUES (15, "Obsequious", "Obedient or attentive to an excessive or servile degree.")');
         }
 
         function errorCB(err) {
@@ -73,6 +83,7 @@ var app = {
         // if successful query, set the apps word count...
         function querySuccess(tx, results){
             app.wordCount = results.rows.length;
+            console.log('X ' + app.wordCount);
         }
 
 
@@ -104,7 +115,12 @@ var app = {
 
 
 
-
+    // !! This is the error place...
+    // We need to get all the words,
+    // then pull random number of array defs. and make sure the def is NOT one chosen before, NOR
+    // one that matches word count. That should be easy enough to do later.
+    // or refactor the program, I think I am getting a list of words at the beginning for the word count.
+    // I can just write smart application code to get around this random bug.
 
     // get definitions that are not the answer
     getDefs : function(tx){
