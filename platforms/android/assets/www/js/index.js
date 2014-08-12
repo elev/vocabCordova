@@ -83,6 +83,7 @@ var app = {
         // if successful query, set the apps word count...
         function querySuccess(tx, results){
             app.wordCount = results.rows.length;
+            console.log('X ' + app.wordCount);
         }
 
 
@@ -114,18 +115,61 @@ var app = {
 
 
 
-
+    // !! This is the error place...
+    // We need to get all the words,
+    // then pull random number of array defs. and make sure the def is NOT one chosen before, NOR
+    // one that matches word count. That should be easy enough to do later.
+    // or refactor the program, I think I am getting a list of words at the beginning for the word count.
+    // I can just write smart application code to get around this random bug.
 
     // get definitions that are not the answer
     getDefs : function(tx){
-        tx.executeSql('SELECT * FROM WORDS WHERE id <> ' + app.correctID + ' LIMIT 3', [], app.loadDefs, app.signalError);
+        tx.executeSql('SELECT * FROM WORDS', [], app.loadDefs, app.signalError);
     },
     // load definitions,
     // assign correct class
     // add click correct event listener
     loadDefs : function(tx, results){
-        for (var i = 0; i < results.rows.length; i++){
-            app.definitionArray.push(results.rows.item(i).definition);
+        function getRand(num, count){
+            var rand = Math.floor(Math.random()*(app.wordCount-1+1)+1);
+            if (rand != num){
+                return rand;
+            } else {
+                return getRand(num, count);
+            }
+        }
+
+        // dynamically creates an array of unique numbers...
+        function randArr(num, count){
+            var arr = [];
+            var i = 0;
+            while (i < 3){
+                var rand = getRand(num, count) -1;
+                if (arr.indexOf(rand) == -1 ){
+                    //more crazy work around because sql random won't work...
+                    if (results.rows.item(rand).id != num){
+                        arr.push(rand);
+                        i++;
+                    }
+                }
+            }
+            return arr;
+        }
+        var keep = randArr(app.correctID, app.wordCount, keep);
+        // console.log(keep);
+
+        // // get three random numbers
+        // // the must be unique and not one of the above...
+        // console.log('len' + results.rows.length);
+
+        // console.log('xxx');
+        // console.log(results.rows.item(0).definition);
+        // console.log(results.rows.item(14).definition);
+        // console.log(results.rows.item(15).definition);
+
+        // console.log('yyy');
+        for (var i = 0; i < keep.length; i++){
+            app.definitionArray.push(results.rows.item(keep[i]).definition);
         }
         app.definitionArray.shuffle();
         var list = document.getElementById('definitionTest');
